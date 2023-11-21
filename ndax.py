@@ -9,6 +9,7 @@ import pandas as pd
 
 load_dotenv("keys.env")
 
+
 class NDAXClient:
     def __init__(self, url: str = "wss://api.ndax.io/WSGateway/"):
         """
@@ -131,6 +132,7 @@ class NDAXClient:
             "Symbol": symbol if symbol is not None else ""
         }
         self._send_request("SubscribeLevel1", payload)
+        
     def subscribe_level2(self, instrument_id=None,  depth=10):
         payload = {
             "OMSId": 1,
@@ -154,3 +156,19 @@ class NDAXClient:
         }
         self._send_request("SubscribeTrades", payload)
 
+    def get_l2_snapshot(self, instrument_id, depth=10):
+        payload = {
+            "OMSId": 1,
+            "InstrumentId": instrument_id,
+            'Depth': depth
+        }
+        self._send_request("GetL2Snapshot", payload)
+        
+    def getlevel1(self, instrument_id):
+        payload = {
+            "OMSId": 1,
+            "InstrumentId": instrument_id
+        }
+        self._send_request("GetLevel1", payload)
+        
+    
