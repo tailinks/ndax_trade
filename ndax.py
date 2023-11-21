@@ -11,6 +11,16 @@ load_dotenv("keys.env")
 
 
 class NDAXClient:
+    """
+    A client for interacting with the NDAX API through WebSocket.
+
+    Attributes:
+        url (str): The WebSocket URL for the NDAX API.
+        request_sequence_number (int): The sequence number for request messages.
+        ws (WebSocketApp): The WebSocket connection object.
+        positions (pd.DataFrame): DataFrame to store account positions.
+    """
+
     def __init__(self, url: str = "wss://api.ndax.io/WSGateway/"):
         """
         Initialize the NDAXClient with a WebSocket URL.
@@ -61,6 +71,7 @@ class NDAXClient:
         payload = json.loads(response.get("o", "{}"))
         print("Received message:", method_name)
         print("Payload:", payload)
+
     def on_error(self, ws, error: Exception):
         """
         Callback for when an error occurs.
@@ -126,6 +137,12 @@ class NDAXClient:
         self._send_request("GetAccountPositions", payload)
     
     def subscribe_level1(self, instrument_id=None, symbol=None):
+        """
+        Subscribes to Level 1 data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to subscribe to.
+        :param symbol: The symbol of the instrument to subscribe to.
+        """
         payload = {
             "OMSId": 1,
             "InstrumentId": instrument_id if instrument_id is not None else 0,
@@ -134,13 +151,27 @@ class NDAXClient:
         self._send_request("SubscribeLevel1", payload)
         
     def subscribe_level2(self, instrument_id=None,  depth=10):
+        """
+        Subscribes to Level 2 data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to subscribe to.
+        :param depth: The depth of the Level 2 data to subscribe to.
+        """
         payload = {
             "OMSId": 1,
             "InstrumentId": instrument_id if instrument_id is not None else 0,
             "Depth": depth
         }
         self._send_request("SubscribeLevel2", payload)
+    
     def subscribe_ticker(self, instrument_id, interval=60, include_last_count=100):
+        """
+        Subscribes to ticker data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to subscribe to.
+        :param interval: The interval in seconds for the ticker data.
+        :param include_last_count: The number of previous ticker data to include.
+        """
         payload = {
             "OMSId": 1,
             "InstrumentId": instrument_id,
@@ -148,7 +179,14 @@ class NDAXClient:
             "IncludeLastCount": include_last_count
         }
         self._send_request("SubscribeTicker", payload)
+    
     def subscribe_trades(self, instrument_id, include_last_count=100):
+        """
+        Subscribes to trade data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to subscribe to.
+        :param include_last_count: The number of previous trade data to include.
+        """
         payload = {
             "OMSId": 1,
             "InstrumentId": instrument_id,
@@ -157,6 +195,12 @@ class NDAXClient:
         self._send_request("SubscribeTrades", payload)
 
     def get_l2_snapshot(self, instrument_id, depth=10):
+        """
+        Requests a Level 2 snapshot for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to request the snapshot for.
+        :param depth: The depth of the snapshot data to request.
+        """
         payload = {
             "OMSId": 1,
             "InstrumentId": instrument_id,
@@ -165,6 +209,11 @@ class NDAXClient:
         self._send_request("GetL2Snapshot", payload)
         
     def getlevel1(self, instrument_id):
+        """
+        Requests Level 1 data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to request the data for.
+        """
         payload = {
             "OMSId": 1,
             "InstrumentId": instrument_id
