@@ -43,40 +43,6 @@ class NDAXClient:
                                          on_error=self.on_error,
                                          on_close=self.on_close)
         
-    # Rest of the code...
-class NDAXClient:
-    """
-    A client for interacting with the NDAX API through WebSocket.
-
-    Attributes:
-        url (str): The WebSocket URL for the NDAX API.
-        request_sequence_number (int): The sequence number for request messages.
-        ws (WebSocketApp): The WebSocket connection object.
-        positions (pd.DataFrame): DataFrame to store account positions.
-    """
-
-    def __init__(self, url: str = "wss://api.ndax.io/WSGateway/"):
-        """
-        Initialize the NDAXClient with a WebSocket URL.
-
-        :param url: WebSocket URL for the NDAX API.
-        """
-        self.url = url
-        self.request_sequence_number = 2
-        self.ws = None
-        self.positions = pd.DataFrame()
-        self.connect()
-
-    def connect(self):
-        """
-        Establishes a WebSocket connection.
-        """
-        self.ws = websocket.WebSocketApp(self.url,
-                                         on_open=self.on_open,
-                                         on_message=self.on_message,
-                                         on_error=self.on_error,
-                                         on_close=self.on_close)
-        
     def start(self):
         """
         Starts the WebSocket connection in a separate thread.
