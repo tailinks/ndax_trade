@@ -43,6 +43,40 @@ class NDAXClient:
                                          on_error=self.on_error,
                                          on_close=self.on_close)
         
+    # Rest of the code...
+class NDAXClient:
+    """
+    A client for interacting with the NDAX API through WebSocket.
+
+    Attributes:
+        url (str): The WebSocket URL for the NDAX API.
+        request_sequence_number (int): The sequence number for request messages.
+        ws (WebSocketApp): The WebSocket connection object.
+        positions (pd.DataFrame): DataFrame to store account positions.
+    """
+
+    def __init__(self, url: str = "wss://api.ndax.io/WSGateway/"):
+        """
+        Initialize the NDAXClient with a WebSocket URL.
+
+        :param url: WebSocket URL for the NDAX API.
+        """
+        self.url = url
+        self.request_sequence_number = 2
+        self.ws = None
+        self.positions = pd.DataFrame()
+        self.connect()
+
+    def connect(self):
+        """
+        Establishes a WebSocket connection.
+        """
+        self.ws = websocket.WebSocketApp(self.url,
+                                         on_open=self.on_open,
+                                         on_message=self.on_message,
+                                         on_error=self.on_error,
+                                         on_close=self.on_close)
+        
     def start(self):
         """
         Starts the WebSocket connection in a separate thread.
@@ -220,4 +254,171 @@ class NDAXClient:
         }
         self._send_request("GetLevel1", payload)
         
+    def logout(self):
+        """
+        Sends a logout request.
+        """
+        self._send_request("LogOut", {})
+        
+    def subscribeaccountevents(self,):
+        """
+        Subscribes to account events.
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID"))
+        }
+        self._send_request("SubscribeAccountEvents", payload)
     
+    def unsubscribe_level1(self, instrument_id=None, symbol=None):
+        """
+        Unsubscribes from Level 1 data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to unsubscribe from.
+        :param symbol: The symbol of the instrument to unsubscribe from.
+        """
+        payload = {
+            "OMSId": 1,
+            "InstrumentId": instrument_id if instrument_id is not None else 0,
+            "Symbol": symbol if symbol is not None else ""
+        }
+        self._send_request("UnsubscribeLevel1", payload)
+        
+    def unsubscribe_level2(self, instrument_id=None,  depth=10):
+        """
+        Unsubscribes from Level 2 data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to unsubscribe from.
+        :param depth: The depth of the Level 2 data to unsubscribe from.
+        """
+        payload = {
+            "OMSId": 1,
+            "InstrumentId": instrument_id if instrument_id is not None else 0,
+            "Depth": depth
+        }
+        self._send_request("UnsubscribeLevel2", payload)
+    
+    def unsubscribe_ticker(self, instrument_id, interval=60, include_last_count=100):
+        """
+        Unsubscribes from ticker data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to unsubscribe from.
+        :param interval: The interval in seconds for the ticker data.
+        :param include_last_count: The number of previous ticker data to include.
+        """
+        payload = {
+            "OMSId": 1,
+            "InstrumentId": instrument_id,
+            "Interval": interval,
+            "IncludeLastCount": include_last_count
+        }
+        self._send_request("UnsubscribeTicker", payload)
+    
+    def unsubscribe_trades(self, instrument_id, include_last_count=100):
+        """
+        Unsubscribes from trade data for a specific instrument.
+
+        :param instrument_id: The ID of the instrument to unsubscribe from.
+        :param include_last_count: The number of previous trade data to include.
+        """
+        payload = {
+            "OMSId": 1,
+            "InstrumentId": instrument_id,
+            "IncludeLastCount": include_last_count
+        }
+        self._send_request("UnsubscribeTrades", payload)
+        
+    def getaccountinfo(self):
+        """
+        Requests account information.
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID"))
+        }
+        self._send_request("GetAccountInfo", payload)
+    
+    def getopentradereports(self):
+        """
+        Requests open trade reports.
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID"))
+        }
+        self._send_request("GetOpenTradeReports", payload)
+    
+    def gettickerhistory(self):
+        """
+        Requests ticker history.
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID"))
+        }
+        self._send_request("GetTickerHistory", payload)
+    
+    def cancellallorders(self):
+        """
+        Cancels all orders.
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID"))
+        }
+        self._send_request("CancelAllOrders", payload)
+        
+    def cancelorder(self, order_id):
+        """_summary_
+
+        Args:
+            order_id (_type_): _description_
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID")),
+            "OrderId": order_id
+        }
+        self._send_request("CancelOrder", payload)
+        
+    def getopenorders(self):
+        """
+        Requests open orders.
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID"))
+        }
+        self._send_request("GetOpenOrders", payload)
+    
+    def sendorder(self, instrument_id, side, order_type, quantity, timeinforce, usedisplayquantity=False, price=None):
+        """
+        Sends an order.
+
+        :param instrument_id: The ID of the instrument to send the order for.
+        :param side: The side of the order.
+        :param order_type: The type of the order.
+        :param quantity: The quantity of the order.
+        :param price: The price of the order.
+        """
+        payload = {
+            "OMSId": 1,
+            "AccountId": int(os.environ.get("ACCOUNT_ID")),
+            "InstrumentId": instrument_id,
+            "TimeInForce": timeinforce,
+            "Side": side,
+            "OrderType": order_type,
+            "UseDisplayQuantity": usedisplayquantity,
+            "Quantity": quantity,
+            "LimitPrice": price if price is not None else 0
+        }
+        self._send_request("SendOrder", payload)
+        
+    def getproducts(self):
+        """
+        Requests products.
+        """
+        payload = {
+            "OMSId": 1
+        }
+        self._send_request("GetProducts", payload)
