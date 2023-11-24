@@ -1,4 +1,3 @@
-import time
 from dotenv import load_dotenv
 import os
 import json
@@ -112,17 +111,27 @@ class NDAXClient:
         """
         Sends an authentication request.
         """
+        username = os.environ.get("USERNAME")
+        password = os.environ.get("PASSWORD")
+
+        if not username or not password:
+            raise ValueError("Environment variables 'USERNAME' and 'PASSWORD' must be set.")
+
         payload = {
-            "UserName": os.environ.get("USERNAME"),
-            "Password": os.environ.get("PASSWORD"),
+            "UserName": username,
+            "Password": password,
         }
         self._send_request("authenticateuser", payload)
+
 
     def authenticate_2fa(self):
         """
         Sends a two-factor authentication request.
         """
         secret_key = os.environ.get("2FA_SECRET_KEY")
+        if not secret_key:
+            raise ValueError("Environment variables '2FA_SECRET_KEY' must be set.")
+
         totp = pyotp.TOTP(secret_key)
         two_fa_code = totp.now()
         payload = {"Code": two_fa_code}
@@ -133,6 +142,8 @@ class NDAXClient:
         Requests account positions.
         """
         account_id = os.environ.get("ACCOUNT_ID")
+        if not account_id:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         payload = {"AccountId": int(account_id), "OMSId": 1}
         self._send_request("GetAccountPositions", payload)
     
@@ -234,6 +245,8 @@ class NDAXClient:
             "OMSId": 1,
             "AccountId": int(os.environ.get("ACCOUNT_ID"))
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("SubscribeAccountEvents", payload)
     
     def unsubscribe_level1(self, instrument_id=None, symbol=None):
@@ -302,6 +315,8 @@ class NDAXClient:
             "OMSId": 1,
             "AccountId": int(os.environ.get("ACCOUNT_ID"))
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("GetAccountInfo", payload)
     
     def getopentradereports(self):
@@ -312,6 +327,8 @@ class NDAXClient:
             "OMSId": 1,
             "AccountId": int(os.environ.get("ACCOUNT_ID"))
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("GetOpenTradeReports", payload)
     
     def gettickerhistory(self):
@@ -322,6 +339,8 @@ class NDAXClient:
             "OMSId": 1,
             "AccountId": int(os.environ.get("ACCOUNT_ID"))
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("GetTickerHistory", payload)
     
     def cancellallorders(self):
@@ -332,6 +351,8 @@ class NDAXClient:
             "OMSId": 1,
             "AccountId": int(os.environ.get("ACCOUNT_ID"))
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("CancelAllOrders", payload)
         
     def cancelorder(self, order_id):
@@ -345,6 +366,8 @@ class NDAXClient:
             "AccountId": int(os.environ.get("ACCOUNT_ID")),
             "OrderId": order_id
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("CancelOrder", payload)
         
     def getopenorders(self):
@@ -355,6 +378,8 @@ class NDAXClient:
             "OMSId": 1,
             "AccountId": int(os.environ.get("ACCOUNT_ID"))
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("GetOpenOrders", payload)
     
     def sendorder(self, instrument_id, side, order_type, quantity, timeinforce, usedisplayquantity=False, price=None):
@@ -378,6 +403,8 @@ class NDAXClient:
             "Quantity": quantity,
             "LimitPrice": price if price is not None else 0
         }
+        if not payload["AccountId"]:
+            raise ValueError("Environment variables 'ACCOUNT_ID' must be set.")
         self._send_request("SendOrder", payload)
         
     def getproducts(self):
